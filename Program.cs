@@ -18,7 +18,6 @@ namespace sumkin_Consoleapp
         //C:\Users\mark\source\repos\sumkin_Consoleapp\sumkin_Consoleapp\bin\Debug\netcoreapp3.1
 
         private static AutoResetEvent evt = new AutoResetEvent(false);
-
         public static void d1()
         {
             evt.WaitOne();
@@ -78,7 +77,8 @@ namespace sumkin_Consoleapp
                     catch
                     {
 
-                        try {
+                        try
+                        {
 
                             wall_id = post.FindElement(By.ClassName("_post")).GetAttribute("data-post-id").Remove(0, 1);
                             wall_id_l.Add(wall_id);
@@ -139,17 +139,60 @@ namespace sumkin_Consoleapp
             return (wall_id_l, wall_link_l, wall_text_l, images_mas);
         }
 
-        public class Json_s {
-            public string Id_post0 { get; set; }
-            public string Link_post0 { get; set; }
-            public string Text_post0 { get; set; }
-            public string[] Images_post0 { get; set; }            
+        public class Json_s
+        {
+            public string Id_post { get; set; }
+            public string Link_post { get; set; }
+            public string Text_post { get; set; }
+            public string[] Images_post { get; set; }
+
+        }
+        public static void write_to_JSON((List<string>, List<string>, List<string>, string[][]) v1)
+        //public static void write_to_JSON((System.Collections.Generic.List<string>, System.Collections.Generic.List<string>, System.Collections.Generic.List<string>, string[][]) v1)
+        {
+            List<Json_s> peoList = new List<Json_s>()
+            {
+                new  Json_s {Id_post = v1.Item1[0], Link_post = v1.Item2[0], Text_post = v1.Item3[0], Images_post = v1.Item4[0]},
+                new  Json_s {Id_post = v1.Item1[1], Link_post = v1.Item2[1], Text_post = v1.Item3[1], Images_post = v1.Item4[1]},
+                new  Json_s {Id_post = v1.Item1[2], Link_post = v1.Item2[2], Text_post = v1.Item3[2], Images_post = v1.Item4[2]},
+                new  Json_s {Id_post = v1.Item1[3], Link_post = v1.Item2[3], Text_post = v1.Item3[3], Images_post = v1.Item4[3]},
+                new  Json_s {Id_post = v1.Item1[4], Link_post = v1.Item2[4], Text_post = v1.Item3[4], Images_post = v1.Item4[4]},
+                new  Json_s {Id_post = v1.Item1[5], Link_post = v1.Item2[5], Text_post = v1.Item3[5], Images_post = v1.Item4[5]},
+                new  Json_s {Id_post = v1.Item1[6], Link_post = v1.Item2[6], Text_post = v1.Item3[6], Images_post = v1.Item4[6]},
+                new  Json_s {Id_post = v1.Item1[7], Link_post = v1.Item2[7], Text_post = v1.Item3[7], Images_post = v1.Item4[7]},
+                new  Json_s {Id_post = v1.Item1[8], Link_post = v1.Item2[8], Text_post = v1.Item3[8], Images_post = v1.Item4[8]},
+                new  Json_s {Id_post = v1.Item1[9], Link_post = v1.Item2[9], Text_post = v1.Item3[9], Images_post = v1.Item4[9]},
+
+            };
+            //сериализация
+            var json = JsonConvert.SerializeObject(peoList);
+            StreamWriter file = new StreamWriter("user.json");
+            file.WriteLine(json);
+            file.Close();
+            Console.WriteLine("SERIALIZATION DONE");
+
             
         }
 
-        public static async Task write_to_JSON()
+        public static void deseriliziation()
         {
-           
+            //десериализация
+            var jsonString = File.ReadAllText("user.json");
+            List<Json_s> lista = new List<Json_s>(JsonConvert.DeserializeObject<List<Json_s>>(jsonString));
+            foreach (var obj in lista)
+            {
+                Console.WriteLine("=========================");
+                Console.WriteLine(obj.Id_post);
+                Console.WriteLine(obj.Link_post);
+                Console.WriteLine(obj.Text_post);
+                Console.WriteLine(obj.Images_post);
+                for (int i = 0; i < obj.Images_post.Length; i++)
+                {
+                    Console.WriteLine(obj.Images_post[i]);
+                }
+                Console.WriteLine("=========================");
+            }
+            Console.WriteLine("DESERIALIZATION DONE");
         }
 
         static void Main(string[] args)
@@ -157,9 +200,12 @@ namespace sumkin_Consoleapp
             ChromeOptions options = new ChromeOptions();
             options.AddArguments(@"user-data-dir=C:\Users\mark\AppData\Local\Google\Chrome\User Data\Default");
             IWebDriver driver = new ChromeDriver(@"C:\Users\mark\source\repos\sumkin_Consoleapp\sumkin_Consoleapp\", options);
-         
+
             driver.Navigate().GoToUrl("https://vk.com/feed");
             var v1 = start_all(driver);
+            
+            write_to_JSON(v1);
+            deseriliziation();
 
             Thread t = new Thread(d1); Thread t2 = new Thread(d2); t.Start(); t2.Start();
             t.Join();
@@ -179,47 +225,12 @@ namespace sumkin_Consoleapp
                     Console.WriteLine("images  = {0}", v1.Item4[i][j]);
 
             }
-            List<Json_s> peoList = new List<Json_s>()
-            {
-                new  Json_s {Id_post0 = v1.Item1[0], Link_post0 = v1.Item2[0], Text_post0 = v1.Item3[0], Images_post0 = v1.Item4[0]},
-                new  Json_s {Id_post0 = v1.Item1[1], Link_post0 = v1.Item2[1], Text_post0 = v1.Item3[1], Images_post0 = v1.Item4[1]},
-                new  Json_s {Id_post0 = v1.Item1[2], Link_post0 = v1.Item2[2], Text_post0 = v1.Item3[2], Images_post0 = v1.Item4[2]},
-                new  Json_s {Id_post0 = v1.Item1[3], Link_post0 = v1.Item2[3], Text_post0 = v1.Item3[3], Images_post0 = v1.Item4[3]},
-                new  Json_s {Id_post0 = v1.Item1[4], Link_post0 = v1.Item2[4], Text_post0 = v1.Item3[4], Images_post0 = v1.Item4[4]},
-                new  Json_s {Id_post0 = v1.Item1[5], Link_post0 = v1.Item2[5], Text_post0 = v1.Item3[5], Images_post0 = v1.Item4[5]},
-                new  Json_s {Id_post0 = v1.Item1[6], Link_post0 = v1.Item2[6], Text_post0 = v1.Item3[6], Images_post0 = v1.Item4[6]},
-                new  Json_s {Id_post0 = v1.Item1[7], Link_post0 = v1.Item2[7], Text_post0 = v1.Item3[7], Images_post0 = v1.Item4[7]},
-                new  Json_s {Id_post0 = v1.Item1[8], Link_post0 = v1.Item2[8], Text_post0 = v1.Item3[8], Images_post0 = v1.Item4[8]},
-                new  Json_s {Id_post0 = v1.Item1[9], Link_post0 = v1.Item2[9], Text_post0 = v1.Item3[9], Images_post0 = v1.Item4[9]},
 
-            };
-            //сериализация
-            var json = JsonConvert.SerializeObject(peoList);
-            StreamWriter file = new StreamWriter("user.json");
-            file.WriteLine(json);
-            file.Close();
-            
-            //десериализация
-            var jsonString = File.ReadAllText("user.json");
-            List<Json_s> lista = new List<Json_s>(JsonConvert.DeserializeObject<List<Json_s>>(jsonString));
-            foreach (var obj in lista)
-            {
-                Console.WriteLine("=========================");
-                Console.WriteLine(obj.Id_post0);
-                Console.WriteLine(obj.Link_post0);
-                Console.WriteLine(obj.Text_post0);
-                Console.WriteLine(obj.Images_post0);
-                for (int i = 0; i < obj.Images_post0.Length; i++)
-                {
-                    Console.WriteLine(obj.Images_post0[i]);
-                }
-                Console.WriteLine("=========================");
-            }
             Console.WriteLine("END");
-           
+
         }
-            
-            
-        
+
+
+
     }
 }
