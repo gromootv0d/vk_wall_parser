@@ -99,7 +99,8 @@ namespace sumkin_Consoleapp
                             wall_text_l.Add(wall_text);
                             try
                             { //есть ли картнки
-                                var wall_photos = post.FindElements(By.ClassName("image_cover"));
+                                IWebElement check = post.FindElement(By.ClassName("wall_text"));
+                                var wall_photos = check.FindElements(By.ClassName("image_cover"));
                                 //wall_image.Clear();
                                 //делаем массив картинок
                                 images_mas[coutner_for_photos] = new string[wall_photos.Count];
@@ -171,7 +172,7 @@ namespace sumkin_Consoleapp
             file.Close();
             Console.WriteLine("SERIALIZATION DONE");
 
-            
+
         }
 
         public static void deseriliziation()
@@ -203,7 +204,7 @@ namespace sumkin_Consoleapp
 
             driver.Navigate().GoToUrl("https://vk.com/feed");
             var v1 = start_all(driver);
-            
+
             write_to_JSON(v1);
             deseriliziation();
 
