@@ -49,10 +49,10 @@ namespace sumkin_Consoleapp
             string wall_text;
             string wall_id;
             string wall_link;
-            var wall_image = new List<string>();
+            //var wall_image = new List<string>();
 
             //List<List<string>> wall_image_l = new List<List<string>>();
-            var wall_image_l = new List<List<string>>();
+            //var wall_image_l = new List<List<string>>();
 
             List<string> wall_id_l = new List<string>();
             List<string> wall_text_l = new List<string>();
@@ -115,7 +115,7 @@ namespace sumkin_Consoleapp
                                     //wall_image.Add(background_image_property);
 
                                 }
-                                wall_image_l.Add(wall_image);
+                                //wall_image_l.Add(wall_image);
                             }
                             catch
                             {
