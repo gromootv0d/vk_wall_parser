@@ -17,6 +17,31 @@ namespace sumkin_Consoleapp
     {
         //C:\Users\mark\source\repos\sumkin_Consoleapp\sumkin_Consoleapp\bin\Debug\netcoreapp3.1
 
+        public static void ds1(string connStr)
+        {
+            MySqlConnection conn = new MySqlConnection(connStr);
+
+            conn.Open();
+            string sql = "SELECT name FROM dbpost1 WHERE id = 1";
+            MySqlCommand command = new MySqlCommand(sql, conn);
+            string name = command.ExecuteScalar().ToString();
+            Console.WriteLine(name);
+            conn.Close();
+
+        }
+        public static void ds2(string connStr)
+        {
+
+            MySqlConnection conn = new MySqlConnection(connStr);
+            conn.Open();
+            string sql = "INSERT INTO dbpost1 (name, link) VALUES ('testman', 'testlink')";
+            //string sql = "SELECT name FROM dbpost1 WHERE id = 1";
+            MySqlCommand command = new MySqlCommand(sql, conn);
+            command.ExecuteNonQuery();
+            conn.Close();
+
+        }
+
         private static AutoResetEvent evt = new AutoResetEvent(false);
         public static void d1()
         {
@@ -226,6 +251,12 @@ namespace sumkin_Consoleapp
                     Console.WriteLine("images  = {0}", v1.Item4[i][j]);
 
             }
+
+            string connStr = "server=localhost; user=root;database=dbpost;password=MysqlPass33";
+            var myThread1 = new Thread(() => ds1(connStr)) { IsBackground = true }; myThread1.Start();
+            var myThread2 = new Thread(() => ds2(connStr)) { IsBackground = true }; myThread2.Start();
+            myThread1.Join();
+            myThread2.Join();
 
             Console.WriteLine("END");
 
