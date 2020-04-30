@@ -34,8 +34,8 @@ namespace sumkin_Consoleapp
 
             MySqlConnection conn = new MySqlConnection(connStr);
             conn.Open();
-            string sql = "INSERT INTO dbpost1 (name, link) VALUES ('testman', 'testlink')";
-            //string sql = "SELECT name FROM dbpost1 WHERE id = 1";
+            //string sql = "INSERT INTO dbpost1 (name, link) VALUES ('testman', 'testlink')"; //error couse no id give!
+            string sql = "SELECT name FROM dbpost1 WHERE id = 1";
             MySqlCommand command = new MySqlCommand(sql, conn);
             command.ExecuteNonQuery();
             conn.Close();
