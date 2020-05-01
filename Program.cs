@@ -270,14 +270,18 @@ namespace sumkin_app2
             var myThread2 = new Thread(() => write_to_JSON(v2, 2)) { IsBackground = true }; myThread2.Start();
             var myThread3 = new Thread(() => write_to_JSON(v3, 3)) { IsBackground = true }; myThread3.Start();
 
-            myThread1.Start();
-            myThread2.Start();
-            myThread3.Start();
+            myThread1.Join();
+            myThread2.Join();
+            myThread3.Join();
 
             string connStr = "server=localhost; user=root;database=dbpost;password=MysqlPass33";
             var myThread1_db = new Thread(() => deseriliziation(connStr, 1)) { IsBackground = true }; myThread1_db.Start();
             var myThread2_db = new Thread(() => deseriliziation(connStr, 2)) { IsBackground = true }; myThread2_db.Start();
             var myThread3_db = new Thread(() => deseriliziation(connStr, 3)) { IsBackground = true }; myThread3_db.Start();
+
+            myThread1_db.Join();
+            myThread2_db.Join();
+            myThread3_db.Join();
             //deseriliziation(connStr, 1);
             //deseriliziation(connStr, 2);
             //deseriliziation(connStr, 3);
