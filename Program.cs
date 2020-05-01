@@ -265,13 +265,22 @@ namespace sumkin_app2
             Thread.Sleep(1);
             var v3 = start_all(driver);
 
-            write_to_JSON(v1, 1);
-            write_to_JSON(v2, 2);
-            write_to_JSON(v3, 3);
+
+            var myThread1 = new Thread(() => write_to_JSON(v1, 1)) { IsBackground = true }; myThread1.Start();
+            var myThread2 = new Thread(() => write_to_JSON(v2, 2)) { IsBackground = true }; myThread2.Start();
+            var myThread3 = new Thread(() => write_to_JSON(v3, 3)) { IsBackground = true }; myThread3.Start();
+
+            myThread1.Start();
+            myThread2.Start();
+            myThread3.Start();
+
             string connStr = "server=localhost; user=root;database=dbpost;password=MysqlPass33";
-            deseriliziation(connStr, 1);
-            deseriliziation(connStr, 2);
-            deseriliziation(connStr, 3);
+            var myThread1_db = new Thread(() => deseriliziation(connStr, 1)) { IsBackground = true }; myThread1_db.Start();
+            var myThread2_db = new Thread(() => deseriliziation(connStr, 2)) { IsBackground = true }; myThread2_db.Start();
+            var myThread3_db = new Thread(() => deseriliziation(connStr, 3)) { IsBackground = true }; myThread3_db.Start();
+            //deseriliziation(connStr, 1);
+            //deseriliziation(connStr, 2);
+            //deseriliziation(connStr, 3);
 
             //Thread t = new Thread(d1); Thread t2 = new Thread(d2); t.Start(); t2.Start();
             //t.Join();
