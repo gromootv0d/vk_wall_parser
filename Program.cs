@@ -277,31 +277,31 @@ namespace sumkin_app2
             evt_TA0.WaitOne();
             Console.WriteLine("* * поток ТА4 начал работу");
             var TA4_1 = new Thread(() => {
-                string[] strok = File.ReadAllLines("user1.json");
-                if (strok.Length == 0)
-                {
-                    Console.WriteLine("Файл user1.json пуст");
-                }
+                StreamReader sr = new StreamReader("user1.json");
+                string check = sr.ReadToEnd();
+                if (check == "") { Console.WriteLine("Файл user1.json пуст"); }
+                //Thread.Sleep(10000);
+                sr.Close();
                 Console.WriteLine("* * * * поток ТА4 проверил 1 файл");
             })
             { IsBackground = true }; TA4_1.Start();
 
             var TA4_2 = new Thread(() => {
-                string[] strok = File.ReadAllLines("user2.json");
-                if (strok.Length == 0)
-                {
-                    Console.WriteLine("Файл user2.json пуст");
-                }
+                StreamReader sr = new StreamReader("user2.json");
+                string check = sr.ReadToEnd();
+                if (check == "") { Console.WriteLine("Файл user2.json пуст"); }
+                //Thread.Sleep(10000);
+                sr.Close();
                 Console.WriteLine("* * * * поток ТА4 проверил 2 файл");
             })
             { IsBackground = true }; TA4_2.Start();
 
             var TA4_3 = new Thread(() => {
-                string[] strok = File.ReadAllLines("user3.json");
-                if (strok.Length == 0)
-                {
-                    Console.WriteLine("Файл user3.json пуст");
-                }
+                StreamReader sr = new StreamReader("user3.json");
+                string check = sr.ReadToEnd();
+                if (check == "") { Console.WriteLine("Файл user3.json пуст"); }
+                //Thread.Sleep(10000);
+                sr.Close();
                 Console.WriteLine("* * * * поток ТА4 проверил 3 файл");
             })
             { IsBackground = true }; TA4_3.Start();
