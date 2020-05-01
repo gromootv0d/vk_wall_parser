@@ -10,12 +10,15 @@ using System.Text.Json;
 using System.Threading.Tasks;
 using Newtonsoft.Json;
 using System.Runtime.Serialization.Json;
+using MySql.Data.MySqlClient;
 
-namespace sumkin_Consoleapp
+
+
+namespace sumkin_app2
 {
+
     class Program
     {
-        //C:\Users\mark\source\repos\sumkin_Consoleapp\sumkin_Consoleapp\bin\Debug\netcoreapp3.1
 
         public static void ds1(string connStr)
         {
@@ -34,13 +37,20 @@ namespace sumkin_Consoleapp
 
             MySqlConnection conn = new MySqlConnection(connStr);
             conn.Open();
-            //string sql = "INSERT INTO dbpost1 (name, link) VALUES ('testman', 'testlink')"; //error couse no id give!
-            string sql = "SELECT name FROM dbpost1 WHERE id = 1";
+            int i = 1;
+            string test = "test";
+            string sql = "INSERT INTO testtable (id, name) VALUES (1, '11')";
+
+
+            Console.WriteLine(sql);
+            //string sql = "SELECT name FROM dbpost1 WHERE id = 1";
             MySqlCommand command = new MySqlCommand(sql, conn);
             command.ExecuteNonQuery();
             conn.Close();
 
         }
+
+        //C:\Users\mark\source\repos\sumkin_Consoleapp\sumkin_Consoleapp\bin\Debug\netcoreapp3.1
 
         private static AutoResetEvent evt = new AutoResetEvent(false);
         public static void d1()
@@ -173,7 +183,7 @@ namespace sumkin_Consoleapp
             public string[] Images_post { get; set; }
 
         }
-        public static void write_to_JSON((List<string>, List<string>, List<string>, string[][]) v1)
+        public static void write_to_JSON((List<string>, List<string>, List<string>, string[][]) v1, int file_counter)
         //public static void write_to_JSON((System.Collections.Generic.List<string>, System.Collections.Generic.List<string>, System.Collections.Generic.List<string>, string[][]) v1)
         {
             List<Json_s> peoList = new List<Json_s>()
@@ -192,7 +202,8 @@ namespace sumkin_Consoleapp
             };
             //сериализация
             var json = JsonConvert.SerializeObject(peoList);
-            StreamWriter file = new StreamWriter("user.json");
+            //StreamWriter file = new StreamWriter("user.json");
+            StreamWriter file = new StreamWriter(String.Format("user{0}.json", file_counter));
             file.WriteLine(json);
             file.Close();
             Console.WriteLine("SERIALIZATION DONE");
@@ -200,14 +211,22 @@ namespace sumkin_Consoleapp
 
         }
 
-        public static void deseriliziation()
+        public static void deseriliziation(string connStr, int counter_posts_for_bd)
         {
             //десериализация
-            var jsonString = File.ReadAllText("user.json");
+
+            var jsonString = File.ReadAllText(String.Format("user{0}.json", counter_posts_for_bd));
             List<Json_s> lista = new List<Json_s>(JsonConvert.DeserializeObject<List<Json_s>>(jsonString));
+            int counter_id = 1; //id в бд
             foreach (var obj in lista)
             {
+
+
+                string pic_string = ""; //строка со всеми картинками в посте для бд
+
                 Console.WriteLine("=========================");
+
+
                 Console.WriteLine(obj.Id_post);
                 Console.WriteLine(obj.Link_post);
                 Console.WriteLine(obj.Text_post);
@@ -215,9 +234,21 @@ namespace sumkin_Consoleapp
                 for (int i = 0; i < obj.Images_post.Length; i++)
                 {
                     Console.WriteLine(obj.Images_post[i]);
+                    pic_string += obj.Images_post[i] + ", ";
                 }
                 Console.WriteLine("=========================");
+                MySqlConnection conn = new MySqlConnection(connStr);
+                conn.Open();
+                string sql = String.Format("INSERT INTO dbpost{0} (id, vk_id, link, text, images) VALUES ({1}, '{2}', '{3}', '{4}', '{5}')", counter_posts_for_bd, counter_id, obj.Id_post, obj.Link_post, obj.Text_post, pic_string);
+                Console.WriteLine(sql);
+                MySqlCommand command = new MySqlCommand(sql, conn);
+                command.ExecuteNonQuery();
+                conn.Close();
+                counter_id += 1;
             }
+
+
+
             Console.WriteLine("DESERIALIZATION DONE");
         }
 
@@ -225,39 +256,51 @@ namespace sumkin_Consoleapp
         {
             ChromeOptions options = new ChromeOptions();
             options.AddArguments(@"user-data-dir=C:\Users\mark\AppData\Local\Google\Chrome\User Data\Default");
-            IWebDriver driver = new ChromeDriver(@"C:\Users\mark\source\repos\sumkin_Consoleapp\sumkin_Consoleapp\", options);
+            IWebDriver driver = new ChromeDriver(@"C:\Users\mark\source\repos\sumkin_app2\sumkin_app2", options);
 
             driver.Navigate().GoToUrl("https://vk.com/feed");
             var v1 = start_all(driver);
+            Thread.Sleep(1);
+            var v2 = start_all(driver);
+            Thread.Sleep(1);
+            var v3 = start_all(driver);
 
-            write_to_JSON(v1);
-            deseriliziation();
+            write_to_JSON(v1, 1);
+            write_to_JSON(v2, 2);
+            write_to_JSON(v3, 3);
+            string connStr = "server=localhost; user=root;database=dbpost;password=MysqlPass33";
+            deseriliziation(connStr, 1);
+            deseriliziation(connStr, 2);
+            deseriliziation(connStr, 3);
 
-            Thread t = new Thread(d1); Thread t2 = new Thread(d2); t.Start(); t2.Start();
-            t.Join();
-            t2.Join();
+            //Thread t = new Thread(d1); Thread t2 = new Thread(d2); t.Start(); t2.Start();
+            //t.Join();
+            //t2.Join();
 
 
             driver.Close();
 
+
+
+
             //вывод 1го полученного кортежа
             Console.WriteLine("---------------------------");
-            for (int i = 0; i < 10; i++)
-            {
-                Console.WriteLine("id = {0}", v1.Item1[i]);
-                Console.WriteLine("link = {0}", v1.Item2[i]);
-                Console.WriteLine("text = {0}", v1.Item3[i]);
-                for (int j = 0; j < v1.Item4[i].Length; j++)
-                    Console.WriteLine("images  = {0}", v1.Item4[i][j]);
+            //for (int i = 0; i < 10; i++)
+            //{
+            //    Console.WriteLine("id = {0}", v1.Item1[i]);
+            //    Console.WriteLine("link = {0}", v1.Item2[i]);
+            //    Console.WriteLine("text = {0}", v1.Item3[i]);
+            //    for (int j = 0; j < v1.Item4[i].Length; j++)
+            //        Console.WriteLine("images  = {0}", v1.Item4[i][j]);
 
-            }
+            //}
+            Console.WriteLine("Hello World!");
 
-            string connStr = "server=localhost; user=root;database=dbpost;password=MysqlPass33";
-            var myThread1 = new Thread(() => ds1(connStr)) { IsBackground = true }; myThread1.Start();
-            var myThread2 = new Thread(() => ds2(connStr)) { IsBackground = true }; myThread2.Start();
-            myThread1.Join();
-            myThread2.Join();
-
+            //var myThread1 = new Thread(() => ds1(connStr)) { IsBackground = true }; myThread1.Start();
+            //var myThread2 = new Thread(() => ds2(connStr)) { IsBackground = true }; myThread2.Start();
+            //myThread1.Join();
+            //myThread2.Join();
+            Console.WriteLine("END");
             Console.WriteLine("END");
 
         }
