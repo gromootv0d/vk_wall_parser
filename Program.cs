@@ -178,7 +178,7 @@ namespace sumkin_app2
                 StreamReader sr = new StreamReader("user1.json");
                 string check = sr.ReadToEnd();
                 if (check == "") { Console.WriteLine("Файл user1.json пуст"); }
-                //Thread.Sleep(10000);
+                Thread.Sleep(500);
                 sr.Close();
                 Console.WriteLine("* * * * поток ТА4 проверил 1 файл");
             })
@@ -188,7 +188,7 @@ namespace sumkin_app2
                 StreamReader sr = new StreamReader("user2.json");
                 string check = sr.ReadToEnd();
                 if (check == "") { Console.WriteLine("Файл user2.json пуст"); }
-                //Thread.Sleep(10000);
+                Thread.Sleep(500);
                 sr.Close();
                 Console.WriteLine("* * * * поток ТА4 проверил 2 файл");
             })
@@ -198,7 +198,7 @@ namespace sumkin_app2
                 StreamReader sr = new StreamReader("user3.json");
                 string check = sr.ReadToEnd();
                 if (check == "") { Console.WriteLine("Файл user3.json пуст"); }
-                //Thread.Sleep(10000);
+                Thread.Sleep(500);
                 sr.Close();
                 Console.WriteLine("* * * * поток ТА4 проверил 3 файл");
             })
