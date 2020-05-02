@@ -3,13 +3,8 @@ using System.IO;
 using System.Threading;
 using OpenQA.Selenium;
 using OpenQA.Selenium.Chrome;
-using OpenQA.Selenium.Support;
 using System.Collections.Generic;
-using System.Linq;
-using System.Text.Json;
-using System.Threading.Tasks;
 using Newtonsoft.Json;
-using System.Runtime.Serialization.Json;
 using MySql.Data.MySqlClient;
 
 
@@ -20,74 +15,12 @@ namespace sumkin_app2
     class Program
     {
 
-        public static void ds1(string connStr)
-        {
-            MySqlConnection conn = new MySqlConnection(connStr);
-
-            conn.Open();
-            string sql = "SELECT name FROM dbpost1 WHERE id = 1";
-            MySqlCommand command = new MySqlCommand(sql, conn);
-            string name = command.ExecuteScalar().ToString();
-            //Console.WriteLine(name);
-            conn.Close();
-
-        }
-        public static void ds2(string connStr)
-        {
-
-            MySqlConnection conn = new MySqlConnection(connStr);
-            conn.Open();
-            int i = 1;
-            string test = "test";
-            string sql = "INSERT INTO testtable (id, name) VALUES (1, '11')";
-
-
-            //Console.WriteLine(sql);
-            //string sql = "SELECT name FROM dbpost1 WHERE id = 1";
-            MySqlCommand command = new MySqlCommand(sql, conn);
-            command.ExecuteNonQuery();
-            conn.Close();
-
-        }
-
         //C:\Users\mark\source\repos\sumkin_Consoleapp\sumkin_Consoleapp\bin\Debug\netcoreapp3.1
-
-        private static AutoResetEvent evt = new AutoResetEvent(false);
-        public static void d1()
-        {
-            evt.WaitOne();
-            string fileName = "out.txt";
-
-            FileStream aFile = new FileStream(fileName, FileMode.OpenOrCreate);
-            StreamWriter sw = new StreamWriter(aFile);
-            aFile.Seek(0, SeekOrigin.End);
-            sw.WriteLine("123");
-            sw.Close();
-        }
-
-        public static void d2()
-        {
-
-            string fileName = "out.txt";
-            FileStream aFile = new FileStream(fileName, FileMode.OpenOrCreate);
-            StreamWriter sw = new StreamWriter(aFile);
-            aFile.Seek(0, SeekOrigin.End);
-            sw.WriteLine("abc");
-            Thread.Sleep(600);
-            sw.Close();
-            evt.Set();
-        }
         public static (List<string>, List<string>, List<string>, string[][]) start_all(IWebDriver driver)
         {
-
-
             string wall_text;
             string wall_id;
             string wall_link;
-            //var wall_image = new List<string>();
-
-            //List<List<string>> wall_image_l = new List<List<string>>();
-            //var wall_image_l = new List<List<string>>();
 
             List<string> wall_id_l = new List<string>();
             List<string> wall_text_l = new List<string>();
@@ -95,7 +28,7 @@ namespace sumkin_app2
 
             driver.Navigate().Refresh();
             IReadOnlyList<IWebElement> posts = driver.FindElements(By.ClassName("feed_row"));
-            string[][] images_mas = new string[10][];
+            string[][] images_mas = new string[10][];//2мерный массив чтобы хранить картинки с 10 постой (зубчатый)
             int coutner_for_photos = 0;
             foreach (var post in posts)
             {
@@ -111,32 +44,31 @@ namespace sumkin_app2
                     }
                     catch
                     {
-
                         try
                         {
-
+                            //получаем id
                             wall_id = post.FindElement(By.ClassName("_post")).GetAttribute("data-post-id").Remove(0, 1);
                             wall_id_l.Add(wall_id);
-
+                            //получаем ссылку
                             wall_link = "https://vk.com/wall-" + wall_id;
                             wall_link_l.Add(wall_link);
-
+                            //получаем текст
                             try
                             { //есть ли текст
                                 wall_text = post.FindElement(By.ClassName("wall_post_text")).Text;
-                                //Console.WriteLine("wall text = {0}", wall_text);
                             }
                             catch
                             {
-                                //Console.WriteLine("wall text = пусто ");
+
                                 wall_text = "";
                             }
                             wall_text_l.Add(wall_text);
+                            //картиночки
                             try
                             { //есть ли картнки
                                 IWebElement check = post.FindElement(By.ClassName("wall_text"));
                                 var wall_photos = check.FindElements(By.ClassName("image_cover"));
-                                //wall_image.Clear();
+
                                 //делаем массив картинок
                                 images_mas[coutner_for_photos] = new string[wall_photos.Count];
                                 for (int e = 0; e < wall_photos.Count; e++)
@@ -146,36 +78,20 @@ namespace sumkin_app2
                                     background_image_property = background_image_property.Remove(background_image_property.Length - 1);
                                     background_image_property = background_image_property.Remove(background_image_property.Length - 1);
                                     images_mas[coutner_for_photos][e] = background_image_property;
-                                    //Console.WriteLine();
-                                    //wall_image.Add(background_image_property);
 
                                 }
-                                //wall_image_l.Add(wall_image);
                             }
-                            catch
-                            {
-
-                                //Console.WriteLine("Я НЕ ПЕРЕЗАПИСАЛ");
-                            }
+                            catch { }
                             coutner_for_photos += 1;
-
                         }
-                        catch (OpenQA.Selenium.NoSuchElementException)
-                        {
-                            //Console.WriteLine("fuck");
-                        }
-
-
+                        catch (OpenQA.Selenium.NoSuchElementException) { }
                     }
                 }
-
-
             }
-
             return (wall_id_l, wall_link_l, wall_text_l, images_mas);
         }
 
-        public class Json_s
+        public class Json_s //класс для картежа информации с постов
         {
             public string Id_post { get; set; }
             public string Link_post { get; set; }
@@ -183,7 +99,8 @@ namespace sumkin_app2
             public string[] Images_post { get; set; }
 
         }
-        public static void write_to_JSON((List<string>, List<string>, List<string>, string[][]) v1, int file_counter)
+
+        public static void write_to_JSON((List<string>, List<string>, List<string>, string[][]) v1, int file_counter) //запись в файлы
         {
             Console.WriteLine(String.Format("* * поток TA0-{0} начал работу", file_counter));
             List<Json_s> peoList = new List<Json_s>()
@@ -206,13 +123,10 @@ namespace sumkin_app2
             StreamWriter file = new StreamWriter(String.Format("user{0}.json", file_counter));
             file.WriteLine(json);
             file.Close();
-            Console.WriteLine("* * поток TA0-{0} закончил работу");
-
-
-
+            Console.WriteLine(String.Format("* * поток TA0-{0} закончил работу", file_counter));
         }
 
-        public static void deseriliziation(string connStr, int counter_posts_for_bd)
+        public static void deseriliziation(string connStr, int counter_posts_for_bd) //десериализация и запись в бд
         {
             //десериализация
             Console.WriteLine(String.Format("* * поток TB{0} начал работу", counter_posts_for_bd));
@@ -221,36 +135,20 @@ namespace sumkin_app2
             int counter_id = 1; //id в бд
             foreach (var obj in lista)
             {
-
-
                 string pic_string = ""; //строка со всеми картинками в посте для бд
-
-                //Console.WriteLine("=========================");
-
-
-                //Console.WriteLine(obj.Id_post);
-                //Console.WriteLine(obj.Link_post);
-                //Console.WriteLine(obj.Text_post);
-                //Console.WriteLine(obj.Images_post);
                 for (int i = 0; i < obj.Images_post.Length; i++)
                 {
-                    //Console.WriteLine(obj.Images_post[i]);
                     pic_string += obj.Images_post[i] + ", ";
                 }
-                //Console.WriteLine("=========================");
                 MySqlConnection conn = new MySqlConnection(connStr);
                 conn.Open();
                 string sql = String.Format("INSERT INTO dbpost{0} (id, vk_id, link, text, images) VALUES ({1}, '{2}', '{3}', '{4}', '{5}')", counter_posts_for_bd, counter_id, obj.Id_post, obj.Link_post, obj.Text_post, pic_string);
-                //Console.WriteLine(sql);
                 MySqlCommand command = new MySqlCommand(sql, conn);
                 command.ExecuteNonQuery();
                 conn.Close();
                 counter_id += 1;
             }
-
-
             Console.WriteLine(String.Format("* * поток TB{0} закончил работу", counter_posts_for_bd));
-
         }
 
         private static AutoResetEvent evt_TA = new AutoResetEvent(false); //event ожидания конца работы потока TA (ожидает TB)
@@ -343,8 +241,8 @@ namespace sumkin_app2
             ChromeOptions options = new ChromeOptions();
             options.AddArguments(@"user-data-dir=C:\Users\mark\AppData\Local\Google\Chrome\User Data\Default");
             IWebDriver driver = new ChromeDriver(@"C:\Users\mark\source\repos\sumkin_app2\sumkin_app2", options);
-            Console.WriteLine("--------------PROGRAM START-------------");
             driver.Navigate().GoToUrl("https://vk.com/feed");
+            Console.WriteLine("--------------PROGRAM START-------------");
             var v1 = start_all(driver);
             Thread.Sleep(1);
             var v2 = start_all(driver);
@@ -358,46 +256,10 @@ namespace sumkin_app2
             myThread_TA.Join();
             myThread_TB.Join();
 
-
-
-
-            //deseriliziation(connStr, 1);
-            //deseriliziation(connStr, 2);
-            //deseriliziation(connStr, 3);
-
-            //Thread t = new Thread(d1); Thread t2 = new Thread(d2); t.Start(); t2.Start();
-            //t.Join();
-            //t2.Join();
-
-
             driver.Close();
-
-
-
-
-            //вывод 1го полученного кортежа
-
-            //for (int i = 0; i < 10; i++)
-            //{
-            //    Console.WriteLine("id = {0}", v1.Item1[i]);
-            //    Console.WriteLine("link = {0}", v1.Item2[i]);
-            //    Console.WriteLine("text = {0}", v1.Item3[i]);
-            //    for (int j = 0; j < v1.Item4[i].Length; j++)
-            //        Console.WriteLine("images  = {0}", v1.Item4[i][j]);
-
-            //}
-
-
-            //var myThread1 = new Thread(() => ds1(connStr)) { IsBackground = true }; myThread1.Start();
-            //var myThread2 = new Thread(() => ds2(connStr)) { IsBackground = true }; myThread2.Start();
-            //myThread1.Join();
-            //myThread2.Join();
 
             Console.WriteLine("--------------PROGRAM END-------------");
 
         }
-
-
-
     }
 }
